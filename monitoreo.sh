@@ -27,16 +27,20 @@ function capturar_estado() {
   echo "==============================" >> "$LOGFILE"
 }
 
-# Ejecutar el programa
-$PROGRAMA &
-PID=$!
+# Lanzar monitoreo en background
+(
+  while true; do
+    capturar_estado
+    sleep 3
+  done
+) &
+MONITOR_PID=$!
 
-echo "[MONITOREO] Ejecutando con PID $PID"
+# Ejecutar programa en primer plano (espera al ENTER)
+$PROGRAMA
 
-while kill -0 "$PID" 2>/dev/null; do
-  capturar_estado
-  sleep 3
-done
+# Cuando el programa termina, matamos el monitoreo
+kill "$MONITOR_PID"
 
 echo "[MONITOREO] Programa finalizado. Verificando limpieza..." | tee -a "$LOGFILE"
 
@@ -48,14 +52,13 @@ ipcs -s >> "$LOGFILE"
 # Limpieza automática
 echo "[LIMPIEZA] Eliminando recursos de memoria compartida y semáforos..." | tee -a "$LOGFILE"
 
-# Eliminar segmentos de memoria compartida huérfanos
 for id in $(ipcs -m | awk '/0x/ {print $2}'); do
   ipcrm -m "$id" && echo "[LIMPIEZA] Memoria compartida $id eliminada" >> "$LOGFILE"
 done
 
-# Eliminar semáforos
 for id in $(ipcs -s | awk '/0x/ {print $2}'); do
   ipcrm -s "$id" && echo "[LIMPIEZA] Semáforo $id eliminado" >> "$LOGFILE"
 done
 
 echo "[MONITOREO] Proceso finalizado. Log guardado en $LOGFILE"
+
