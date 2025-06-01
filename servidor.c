@@ -168,6 +168,7 @@ void* manejarCliente(void* arg) {
         else if (strstr(buffer, "\"operacion\":\"cerrar\"")) {
             pthread_mutex_lock(&mutexCuentas);
             cuentas[cuentaIndex].enUso = 0;
+            actualizarCuentaEnArchivo(cuentas[cuentaIndex]);
             pthread_mutex_unlock(&mutexCuentas);
             enviarMensaje(socketCliente, "ok", "Sesión cerrada");
             break;
