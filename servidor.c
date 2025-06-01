@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
-#include "funcionescliente.h"
+#include "funcionesclientes.h"
 
 #define PUERTO 8080
 #define MAX_CLIENTES 100
@@ -105,14 +105,22 @@ void* manejarCliente(void* arg) {
         }
 
         else if (strstr(buffer, "\"operacion\":\"depositar\"")) {
-            float monto;
+          float monto;
+            float limite = cuentas[cuentaIndex].limite;
             sscanf(buffer, "{\"operacion\":\"depositar\",\"monto\":%f}", &monto);
+            if (monto > limite){
+                pthread_mutex_unlock(&mutexCuentas);
+                enviarMensaje(socketCliente, "error", "Monto excede limite");
+            }
+            else
+            {
             pthread_mutex_lock(&mutexCuentas);
             cuentas[cuentaIndex].saldo += monto;
             actualizarCuentaEnArchivo(cuentas[cuentaIndex]);
             pthread_mutex_unlock(&mutexCuentas);
-
+ 
             enviarMensaje(socketCliente, "ok", "Depósito realizado");
+            }
         }
 
         else if (strstr(buffer, "\"operacion\":\"retirar\"")) {
