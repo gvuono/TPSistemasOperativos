@@ -5,14 +5,18 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <semaphore.h>
-#include <string.h>    
+#include <string.h>
 #include <signal.h>
 #include <time.h>
-
 
 #include "funciones.h"
 
 int main() {
+    // Registro de señales
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+    signal(SIGHUP, handle_signal);
+
     srand(time(NULL));
 
     int shm_fd = shm_open("/mem_pedidos", O_CREAT | O_RDWR, 0666);
