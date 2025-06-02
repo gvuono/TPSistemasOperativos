@@ -27,7 +27,6 @@ function capturar_estado() {
   echo "==============================" >> "$LOGFILE"
 }
 
-# Lanzar monitoreo en background
 (
   while true; do
     capturar_estado
@@ -36,15 +35,12 @@ function capturar_estado() {
 ) &
 MONITOR_PID=$!
 
-# Ejecutar programa en primer plano (espera al ENTER)
 $PROGRAMA
 
-# Cuando el programa termina, matamos el monitoreo
 kill "$MONITOR_PID"
 
 echo "[MONITOREO] Programa finalizado. Verificando limpieza..." | tee -a "$LOGFILE"
 
-# Guardar estado final
 echo "===== VERIFICACIÓN FINAL =====" >> "$LOGFILE"
 ipcs -m >> "$LOGFILE"
 ipcs -s >> "$LOGFILE"
@@ -61,4 +57,3 @@ for id in $(ipcs -s | awk '/0x/ {print $2}'); do
 done
 
 echo "[MONITOREO] Proceso finalizado. Log guardado en $LOGFILE"
-
