@@ -5,15 +5,12 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <semaphore.h>
-#include <string.h>     // <-- para memset, strcmp
+#include <string.h>    
 #include <signal.h>
 #include <time.h>
 
 
 #include "funciones.h"
-
-// Declaramos variables globales que definimos extern en funciones.h
-
 
 int main() {
     srand(time(NULL));
