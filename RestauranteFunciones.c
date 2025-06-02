@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <semaphore.h>
-#include <string.h>     // <-- para memset, strcmp
+#include <string.h>  
 #include <signal.h>
 #include <time.h>
 
@@ -16,7 +16,7 @@
 SharedData *datos;
 sem_t *sem_mutex;
 
-char *combos[MAX_COMBOS] = {"Stacker", "BigMac", "Wopper"};
+char *combos[MAX_COMBOS] = {"Stacker", "BigMac", "Wopper","Mcnifica","Nuggets","Papas con cheddar","Cajita Feliz","McPollo"};
 
 void cargar_combo_aleatorio(char *dest) {
     int r = rand() % MAX_COMBOS;
