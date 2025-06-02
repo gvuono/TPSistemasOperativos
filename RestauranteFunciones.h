@@ -6,6 +6,7 @@
 #define MAX_PEDIDOS 15
 #define MAX_COMBOS 8
 
+// Declaración de estructuras
 typedef struct {
     int id;
     char estado[50];
@@ -22,6 +23,7 @@ typedef struct {
 extern SharedData *datos;
 extern sem_t *sem_mutex;
 
+// Prototipos de funciones
 void cargar_combo_aleatorio(char *dest);
 void crear_pedido();
 void avanzar_estado(const char *estado_actual, const char *estado_nuevo, const char *rol);
@@ -29,6 +31,6 @@ void cocinar();
 void empaquetar();
 void repartir();
 void limpiar_recursos();
+void handle_signal(int sig);  // <-- Agregado para manejo de señales
 
 #endif
-
