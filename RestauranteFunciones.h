@@ -3,14 +3,13 @@
 
 #include <semaphore.h>
 
-#define MAX_PEDIDOS 10
-#define MAX_COMBOS 3
+#define MAX_PEDIDOS 15
+#define MAX_COMBOS 8
 
-// Declaración de estructuras
 typedef struct {
     int id;
-    char estado[20];
-    char combo[20];
+    char estado[50];
+    char combo[50];
 } Pedido;
 
 typedef struct {
@@ -23,7 +22,6 @@ typedef struct {
 extern SharedData *datos;
 extern sem_t *sem_mutex;
 
-// Prototipos de funciones
 void cargar_combo_aleatorio(char *dest);
 void crear_pedido();
 void avanzar_estado(const char *estado_actual, const char *estado_nuevo, const char *rol);
