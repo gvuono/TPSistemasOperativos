@@ -1,5 +1,3 @@
-#!/bin/bash
-
 PROGRAMA=./restaurante
 LOGFILE="monitoreo_$(date +%Y%m%d_%H%M%S).log"
 
@@ -45,7 +43,6 @@ echo "===== VERIFICACIÓN FINAL =====" >> "$LOGFILE"
 ipcs -m >> "$LOGFILE"
 ipcs -s >> "$LOGFILE"
 
-# Limpieza automática
 echo "[LIMPIEZA] Eliminando recursos de memoria compartida y semáforos..." | tee -a "$LOGFILE"
 
 for id in $(ipcs -m | awk '/0x/ {print $2}'); do
