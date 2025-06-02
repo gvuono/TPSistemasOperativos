@@ -1,11 +1,8 @@
-#!/bin/bash
-
 SERVER_EXEC="./servidor"
 LOG="monitoreo.log"
 
 echo "[*] Iniciando monitoreo del servidor en ejecución..." | tee $LOG
 
-# 1. Buscar el PID del servidor en ejecución
 SERVER_PID=$(pgrep -f "$SERVER_EXEC")
 
 if [ -z "$SERVER_PID" ]; then
@@ -15,14 +12,12 @@ fi
 
 echo "[*] PID del servidor encontrado: $SERVER_PID" | tee -a $LOG
 
-# 2. Mostrar información inicial
 echo "[*] Threads del servidor:" | tee -a $LOG
 ps -Lp $SERVER_PID | tee -a $LOG
 
 echo "[*] Sockets abiertos por servidor:" | tee -a $LOG
 lsof -Pan -p $SERVER_PID -iTCP -sTCP:LISTEN | tee -a $LOG
 
-# 3. Bucle de monitoreo hasta presionar Enter
 echo "[*] Monitoreando actividad. Presiona Enter para finalizar..." | tee -a $LOG
 
 (
@@ -45,10 +40,8 @@ echo "[*] Monitoreando actividad. Presiona Enter para finalizar..." | tee -a $LO
 
 MONITOR_PID=$!
 
-# Esperar Enter del usuario
 read -r
 
-# Finalizar monitoreo si aún está corriendo
 kill $MONITOR_PID 2>/dev/null
 
 echo "[✔] Monitoreo finalizado. Log guardado en $LOG"
