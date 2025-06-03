@@ -5,8 +5,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 8080
 #define BUFFER_SIZE 1024
 
 void limpiarBufferEntrada() {
@@ -54,6 +52,17 @@ int main() {
     char cuenta[20];
     char opcion[10];
     char estado[20], mensaje[100];
+    char ip_str[50];
+    int puerto;
+
+    // Pedir IP y puerto al usuario
+    printf("Ingrese IP del servidor: ");
+    fgets(ip_str, sizeof(ip_str), stdin);
+    ip_str[strcspn(ip_str, "\n")] = 0; // eliminar salto de línea
+
+    printf("Ingrese puerto del servidor: ");
+    scanf("%d", &puerto);
+    limpiarBufferEntrada();
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -62,11 +71,17 @@ int main() {
     }
 
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SERVER_PORT);
-    inet_pton(AF_INET, SERVER_IP, &server_addr.sin_addr);
+    server_addr.sin_port = htons(puerto);
+
+    if(inet_pton(AF_INET, ip_str, &server_addr.sin_addr) <= 0) {
+        printf("Direccion IP invalida\n");
+        close(sock);
+        return 1;
+    };
 
     if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("Connect");
+        close(sock);
         return 1;
     }
 
