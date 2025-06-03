@@ -5,8 +5,9 @@
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <semaphore.h>  // 🔴 Agregado para semáforo
 
-#include "funcionesclientes.h"
+#include "funcionescliente.h"
 
 #define PUERTO 8080
 #define MAX_CLIENTES 100
@@ -15,6 +16,7 @@
 Cuenta cuentas[MAX_CLIENTES];
 int totalCuentas = 0;
 pthread_mutex_t mutexCuentas;
+sem_t semaforoClientes;  // 🔴 Semáforo global para limitar clientes
 
 typedef struct {
     int socket;
@@ -164,7 +166,7 @@ void* manejarCliente(void* arg) {
                 enviarMensaje(socketCliente, "ok", "Transferencia exitosa");
             }
         }
-
+        
         else if (strstr(buffer, "\"operacion\":\"cerrar\"")) {
             pthread_mutex_lock(&mutexCuentas);
             cuentas[cuentaIndex].enUso = 0;
@@ -181,6 +183,7 @@ void* manejarCliente(void* arg) {
 
     close(socketCliente);
     printf("Cliente desconectado\n");
+    sem_post(&semaforoClientes);  // 🟢 Libera el lugar para otro cliente
     pthread_exit(NULL);
 }
 
@@ -191,6 +194,7 @@ int main() {
 
     signal(SIGPIPE, SIG_IGN);
     pthread_mutex_init(&mutexCuentas, NULL);
+    sem_init(&semaforoClientes, 0, 5);  // 🔴 Inicializa semáforo con 5 clientes permitidos
 
     totalCuentas = cargarCuentas(cuentas, MAX_CLIENTES);
     printf("Cuentas cargadas: %d\n", totalCuentas);
@@ -198,15 +202,32 @@ int main() {
     servidorSocket = socket(AF_INET, SOCK_STREAM, 0);
     servidorAddr.sin_family = AF_INET;
     servidorAddr.sin_port = htons(PUERTO);
-    servidorAddr.sin_addr.s_addr = INADDR_ANY;
+    inet_pton(AF_INET, "192.168.165.251", &servidorAddr.sin_addr);
 
-    bind(servidorSocket, (struct sockaddr*)&servidorAddr, sizeof(servidorAddr));
-    listen(servidorSocket, 5);
-    printf("Servidor escuchando en puerto %d...\n", PUERTO);
+
+    if (bind(servidorSocket, (struct sockaddr*)&servidorAddr, sizeof(servidorAddr)) < 0) {
+        perror("Error en bind");
+        exit(EXIT_FAILURE);
+    }
+
+    if (listen(servidorSocket, 5) < 0) {
+        perror("Error en listen");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Servidor escuchando en 192.168.165.251:%d...\n", PUERTO);
 
     while (1) {
+        sem_wait(&semaforoClientes);
+
         clienteSocket = accept(servidorSocket,
                                (struct sockaddr*)&clienteAddr, &clienteLen);
+        if (clienteSocket < 0) {
+            perror("Error en accept");
+            sem_post(&semaforoClientes);
+            continue;
+        }
+
         printf("Cliente conectado\n");
 
         ClienteArgs* args = malloc(sizeof(ClienteArgs));
@@ -215,10 +236,11 @@ int main() {
 
         pthread_t hilo;
         pthread_create(&hilo, NULL, manejarCliente, args);
-        pthread_detach(hilo); // Evita tener que usar pthread_join
+        pthread_detach(hilo);
     }
 
     close(servidorSocket);
     pthread_mutex_destroy(&mutexCuentas);
+    sem_destroy(&semaforoClientes);
     return 0;
 }
