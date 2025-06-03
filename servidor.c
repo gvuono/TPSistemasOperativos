@@ -5,8 +5,7 @@
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <signal.h>
-#include <semaphore.h>  // 🔴 Agregado para semáforo
-
+#include <semaphore.h> 
 #include "funcionescliente.h"
 
 #define PUERTO 8080
@@ -16,7 +15,7 @@
 Cuenta cuentas[MAX_CLIENTES];
 int totalCuentas = 0;
 pthread_mutex_t mutexCuentas;
-sem_t semaforoClientes;  // 🔴 Semáforo global para limitar clientes
+sem_t semaforoClientes; 
 
 typedef struct {
     int socket;
@@ -92,7 +91,6 @@ void* manejarCliente(void* arg) {
             }
             }
         }
-
 
         else if (strstr(buffer, "\"operacion\":\"consultar\"")) {
             pthread_mutex_lock(&mutexCuentas);
@@ -183,7 +181,7 @@ void* manejarCliente(void* arg) {
 
     close(socketCliente);
     printf("Cliente desconectado\n");
-    sem_post(&semaforoClientes);  // 🟢 Libera el lugar para otro cliente
+    sem_post(&semaforoClientes);  
     pthread_exit(NULL);
 }
 
@@ -194,7 +192,7 @@ int main() {
 
     signal(SIGPIPE, SIG_IGN);
     pthread_mutex_init(&mutexCuentas, NULL);
-    sem_init(&semaforoClientes, 0, 5);  // 🔴 Inicializa semáforo con 5 clientes permitidos
+    sem_init(&semaforoClientes, 0, 5);  
 
     totalCuentas = cargarCuentas(cuentas, MAX_CLIENTES);
     printf("Cuentas cargadas: %d\n", totalCuentas);
