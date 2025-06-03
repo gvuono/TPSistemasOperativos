@@ -1,4 +1,3 @@
-//adaw
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +35,7 @@ void extraerValor(const char *json, const char *campo, char *valor, int maxlen) 
         valor[0] = '\0';
         return;
     }
-    pos++; // Avanzar ':'
+    pos++; 
     while (*pos == ' ' || *pos == '"' || *pos == '{' || *pos == ',') pos++;
     int i = 0;
     while (*pos && *pos != '"' && *pos != ',' && *pos != '}' && i < maxlen - 1) {
@@ -58,7 +57,7 @@ int main() {
     // Pedir IP y puerto al usuario
     printf("Ingrese IP del servidor: ");
     fgets(ip_str, sizeof(ip_str), stdin);
-    ip_str[strcspn(ip_str, "\n")] = 0; // eliminar salto de línea
+    ip_str[strcspn(ip_str, "\n")] = 0;
 
     printf("Ingrese puerto del servidor: ");
     scanf("%d", &puerto);
@@ -121,14 +120,14 @@ int main() {
                 return 0;
             }
 
-            // Preguntar si quiere crear cuenta
+ 
             printf("¿Cuenta no encontrada. Desea crearla? (s/n): ");
             fgets(opcion, sizeof(opcion), stdin);
             if (opcion[0] == 's' || opcion[0] == 'S') {
                 float limite;
                 printf("Ingrese límite para la nueva cuenta: ");
                 scanf("%f", &limite);
-                while (getchar() != '\n'); // limpiar buffer stdin
+                while (getchar() != '\n'); 
 
                 snprintf(buffer, sizeof(buffer),
                     "{\"operacion\":\"crear\",\"cuenta\":\"%s\",\"limite\":%.2f}",
